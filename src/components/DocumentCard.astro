@@ -1,0 +1,88 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  category: 'Protocol' | 'Schedule' | 'Contact' | 'Policy' | 'Clinical';
+  updatedDate: string;
+  fileSize?: string;
+  href: string;
+}
+
+const { title, description, category, updatedDate, fileSize = "PDF", href } = Astro.props;
+
+// Categorized colors and icon paths
+const catConfigs = {
+  Protocol: {
+    bg: "bg-teal-500/10 text-teal-400 border-teal-500/20",
+    hoverBg: "group-hover:text-teal-400",
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />`
+  },
+  Schedule: {
+    bg: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    hoverBg: "group-hover:text-amber-400",
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />`
+  },
+  Contact: {
+    bg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+    hoverBg: "group-hover:text-indigo-400",
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />`
+  },
+  Policy: {
+    bg: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+    hoverBg: "group-hover:text-rose-400",
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />`
+  },
+  Clinical: {
+    bg: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+    hoverBg: "group-hover:text-sky-400",
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />`
+  }
+};
+
+const config = catConfigs[category] || catConfigs.Protocol;
+---
+
+<a 
+  href={href} 
+  target="_blank" 
+  rel="noopener noreferrer" 
+  class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-700/60 hover:bg-slate-900/60 hover:shadow-xl hover:shadow-teal-950/20"
+>
+  <!-- Interactive Hover Highlight Glow -->
+  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-teal-500/0 via-teal-500/0 to-teal-500/0 transition-all duration-300 group-hover:from-teal-500/5 group-hover:to-indigo-500/5"></div>
+
+  <div>
+    <!-- Header: Icon & Category Tag -->
+    <div class="flex items-center justify-between mb-4">
+      <div class={`flex h-10 w-10 items-center justify-center rounded-xl border ${config.bg} transition-colors duration-300`}>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5" fragment={config.icon}>
+          <Fragment set:html={config.icon} />
+        </svg>
+      </div>
+      <span class={`rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${config.bg}`}>
+        {category}
+      </span>
+    </div>
+
+    <!-- Title and Description -->
+    <h3 class="font-display text-lg font-bold text-white transition-colors duration-200 group-hover:text-teal-300">
+      {title}
+    </h3>
+    <p class="mt-2 text-sm leading-relaxed text-slate-400 line-clamp-3">
+      {description}
+    </p>
+  </div>
+
+  <!-- Footer Info -->
+  <div class="mt-6 flex items-center justify-between border-t border-slate-800/80 pt-4 text-xs font-medium text-slate-500">
+    <div class="flex items-center gap-1.5">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Updated {updatedDate}</span>
+    </div>
+    <span class="rounded bg-slate-900 border border-slate-800 px-2 py-0.5 text-[10px] uppercase font-bold text-slate-400 group-hover:border-teal-500/30 group-hover:text-teal-400 transition-colors">
+      {fileSize}
+    </span>
+  </div>
+</a>

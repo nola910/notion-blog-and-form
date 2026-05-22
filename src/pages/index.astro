@@ -1,0 +1,455 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DocumentCard from '../components/DocumentCard.astro';
+import BlogCard from '../components/BlogCard.astro';
+
+// We fetch the first page of posts on the server for initial render (SEO friendly)
+let initialPosts = [];
+let nextCursor = null;
+let hasMore = false;
+
+try {
+  // Call our local API endpoint directly during build/server render.
+  // Note: Astro.url.origin gives the local host address.
+  const response = await fetch(`${Astro.url.origin}/api/blog?limit=3`);
+  if (response.ok) {
+    const data = await response.json();
+    initialPosts = data.posts || [];
+    nextCursor = data.next_cursor;
+    hasMore = data.has_more;
+  }
+} catch (err) {
+  console.error("Error fetching initial blog posts on server:", err);
+}
+
+// Sample initial documents
+const documents = [
+  {
+    title: "Clinical Guidelines & Pathways Q2",
+    description: "Contains updated protocols for Stroke, STEMI, Trauma triggers, and Pediatric dosing charts. Essential reading for all staff.",
+    category: "Protocol" as const,
+    updatedDate: "May 10, 2026",
+    fileSize: "PDF (4.2 MB)",
+    href: "#"
+  },
+  {
+    title: "ED Provider Schedule - May/June",
+    description: "Latest physician and APC schedule grids, including shift times, double-coverage slots, and holiday coverage assignments.",
+    category: "Schedule" as const,
+    updatedDate: "May 21, 2026",
+    fileSize: "XLSX (1.1 MB)",
+    href: "#"
+  },
+  {
+    title: "Staff Contact Directory & Pagers",
+    description: "Direct department pager numbers, consultant contact lists, and administration directories. Print-ready version.",
+    category: "Contact" as const,
+    updatedDate: "May 15, 2026",
+    fileSize: "PDF (820 KB)",
+    href: "#"
+  },
+  {
+    title: "Triage & Flow SOP (Standard Operating Procedures)",
+    description: "Detailed workflows for ESI leveling, front-end intake pilot, boarding protocols, and surge capacity plans.",
+    category: "Policy" as const,
+    updatedDate: "Apr 28, 2026",
+    fileSize: "PDF (2.8 MB)",
+    href: "#"
+  },
+  {
+    title: "Intubation & Difficult Airway Checklist",
+    description: "Quick-reference bedside card for pre-oxygenation, induction agents, and backup airway equipment locations.",
+    category: "Clinical" as const,
+    updatedDate: "May 08, 2026",
+    fileSize: "PDF (540 KB)",
+    href: "#"
+  }
+];
+---
+
+<Layout title="Dashboard | PMH Emergency Department Portal">
+  <!-- Hero Section -->
+  <section class="mb-12 relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/20 px-6 py-10 sm:px-12 sm:py-16 backdrop-blur-sm">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-teal-500/10 via-indigo-500/5 to-transparent"></div>
+    
+    <div class="max-w-3xl">
+      <!-- Dynamic greeting using client-side or server-side time. Let's do a client-side greeting for accuracy, default to "Hello" on server -->
+      <span class="text-teal-400 font-semibold uppercase tracking-wider text-xs sm:text-sm" id="dynamic-greeting">Welcome, PMH Team</span>
+      <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-5xl font-display leading-tight">
+        Emergency Department <span class="bg-gradient-to-r from-teal-400 to-indigo-400 bg-clip-text text-transparent">Clinical Portal</span>
+      </h1>
+      <p class="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
+        Access clinical protocols, check scheduling resources, and read updates from the Medical Director. Submitting suggestions or operational issues is simple using the Staff Feedback portal.
+      </p>
+      
+      <div class="mt-8 flex flex-wrap gap-4">
+        <a 
+          href="/forms" 
+          class="inline-flex items-center gap-2 rounded-xl bg-teal-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-md shadow-teal-500/20 transition-all hover:bg-teal-400 hover:shadow-lg hover:shadow-teal-500/30 hover:scale-[1.01]"
+        >
+          Submit Staff Feedback
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-4 w-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </a>
+        <a 
+          href="#documents-section" 
+          class="inline-flex items-center gap-2 rounded-xl bg-slate-900 border border-slate-800 px-5 py-3 text-sm font-semibold text-slate-200 transition-all hover:bg-slate-800 hover:border-slate-700 hover:text-white"
+        >
+          Browse Documents
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Document Portal Grid -->
+  <section id="documents-section" class="mb-16 scroll-mt-24">
+    <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-2xl font-bold text-white font-display">Important Documents & Guides</h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">Direct access to essential clinical and operational resources.</p>
+      </div>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {documents.map((doc) => (
+        <DocumentCard 
+          title={doc.title}
+          description={doc.description}
+          category={doc.category}
+          updatedDate={doc.updatedDate}
+          fileSize={doc.fileSize}
+          href={doc.href}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- Blog/Notion Announcements Section -->
+  <section class="grid gap-12 lg:grid-cols-3">
+    <!-- Announcements Feed -->
+    <div class="lg:col-span-2">
+      <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-white font-display">Director's Desk & Updates</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">Announcements and weekly briefs pulled from Notion.</p>
+        </div>
+      </div>
+
+      <!-- Feed Container -->
+      <div id="blog-feed" class="space-y-6">
+        {initialPosts.length > 0 ? (
+          initialPosts.map((post) => (
+            <BlogCard 
+              id={post.id}
+              title={post.title}
+              summary={post.summary}
+              content={post.content}
+              date={post.date}
+              tags={post.tags}
+              author={post.author}
+            />
+          ))
+        ) : (
+          <!-- Spinner in case server fetch wasn't resolved yet -->
+          <div class="py-12 text-center text-slate-400">Loading department updates...</div>
+        )}
+      </div>
+
+      <!-- Paging and Infinite scroll loading indicator -->
+      <div id="blog-loading" class="mt-8 py-6 text-center text-slate-400 hidden">
+        <div class="inline-flex items-center gap-3">
+          <svg class="animate-spin h-5 w-5 text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-sm font-medium">Fetching more updates...</span>
+        </div>
+      </div>
+      
+      <div id="blog-end" class="mt-8 py-6 text-center text-slate-600 text-xs hidden">
+        No more updates to load.
+      </div>
+    </div>
+
+    <!-- Sidebar / Fast Access Contact Info -->
+    <div class="lg:col-span-1">
+      <div class="sticky top-24 space-y-6">
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/30 p-6 backdrop-blur-sm">
+          <h3 class="font-display font-bold text-white text-lg border-b border-slate-800 pb-3 mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5 text-teal-400">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+            </svg>
+            Quick Feedback Hookup
+          </h3>
+          <p class="text-sm text-slate-400 leading-relaxed mb-4">
+            Notice a broken equipment device? Want to request a workflow policy review? Dr. TC reviews all staff submissions weekly.
+          </p>
+          <a 
+            href="/forms" 
+            class="flex items-center justify-center gap-2 w-full rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 py-3 text-sm font-semibold text-white transition-colors"
+          >
+            Go to Feedback Form
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/30 p-6 backdrop-blur-sm">
+          <h3 class="font-display font-bold text-white text-lg border-b border-slate-800 pb-3 mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5 text-teal-400">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21h10.5V3.75c0-.621-.504-1.125-1.125-1.125H7.875c-.621 0-1.125.504-1.125 1.125V21z" />
+            </svg>
+            Clinical Shifts Contact
+          </h3>
+          <ul class="text-xs space-y-3 text-slate-400 font-medium">
+            <li class="flex justify-between border-b border-slate-800/50 pb-1.5">
+              <span>ED Charge Desk:</span>
+              <span class="text-slate-200">Pager #3301</span>
+            </li>
+            <li class="flex justify-between border-b border-slate-800/50 pb-1.5">
+              <span>Trauma Coordinator:</span>
+              <span class="text-slate-200">Pager #2104</span>
+            </li>
+            <li class="flex justify-between border-b border-slate-800/50 pb-1.5">
+              <span>On-Call Admin:</span>
+              <span class="text-slate-200">Cell (555) 302-8844</span>
+            </li>
+            <li class="flex justify-between">
+              <span>Stroke Team Hotline:</span>
+              <span class="text-amber-400 font-semibold">Speed Dial *55</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Blog Detail Modal Dialog -->
+  <dialog 
+    id="blog-modal" 
+    class="backdrop:bg-slate-950/80 backdrop:backdrop-blur-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-2xl w-full text-slate-100 shadow-2xl focus:outline-none overflow-y-auto max-h-[85vh]"
+  >
+    <div class="relative">
+      <!-- Close button -->
+      <button 
+        id="blog-modal-close"
+        class="absolute -top-2 -right-2 p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors focus:outline-none"
+        aria-label="Close modal"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-5 w-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Modal Body -->
+      <div id="blog-modal-content" class="mt-2"></div>
+    </div>
+  </dialog>
+
+  <!-- Page Logic script for Greeting, Infinite Scroll, and Modal -->
+  <script is:inline define:vars={{ initialNextCursor: nextCursor, initialHasMore: hasMore }}>
+    // 1. Time-based dynamic greeting
+    const hours = new Date().getHours();
+    const greetingEl = document.getElementById('dynamic-greeting');
+    if (greetingEl) {
+      if (hours < 12) greetingEl.textContent = 'Good Morning Shift, PMH Team';
+      else if (hours < 17) greetingEl.textContent = 'Good Afternoon Shift, PMH Team';
+      else if (hours < 22) greetingEl.textContent = 'Good Evening Shift, PMH Team';
+      else greetingEl.textContent = 'Good Night Shift, PMH Team';
+    }
+
+    // 2. Infinite Scroll State
+    let cursor = initialNextCursor;
+    let hasMore = initialHasMore;
+    let isLoading = false;
+
+    const blogFeed = document.getElementById('blog-feed');
+    const blogLoading = document.getElementById('blog-loading');
+    const blogEnd = document.getElementById('blog-end');
+
+    // Intersection Observer to watch for end of list scroll
+    if (hasMore) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
+          fetchNextPosts();
+        }
+      }, {
+        rootMargin: '100px', // trigger when 100px away from bottom
+      });
+
+      // We watch the loading element or create a sentinel
+      if (blogLoading) {
+        blogLoading.classList.remove('hidden');
+        observer.observe(blogLoading);
+      }
+    } else {
+      if (blogEnd) blogEnd.classList.remove('hidden');
+    }
+
+    async function fetchNextPosts() {
+      if (isLoading || !hasMore) return;
+      isLoading = true;
+      blogLoading.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`/api/blog?limit=3&cursor=${cursor}`);
+        if (res.ok) {
+          const data = await res.json();
+          const posts = data.posts || [];
+          cursor = data.next_cursor;
+          hasMore = data.has_more;
+
+          // Append each post
+          posts.forEach(post => {
+            appendPostCard(post);
+          });
+
+          // Bind event listeners to new cards
+          bindReadMoreButtons();
+
+          if (!hasMore) {
+            blogLoading.classList.add('hidden');
+            if (blogEnd) blogEnd.classList.remove('hidden');
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load more posts:", err);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    function appendPostCard(post) {
+      // Colors list for tags
+      const tagColors = [
+        "bg-teal-500/10 text-teal-400 border-teal-500/20",
+        "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+        "bg-amber-500/10 text-amber-400 border-amber-500/20",
+        "bg-rose-500/10 text-rose-400 border-rose-500/20",
+        "bg-sky-500/10 text-sky-400 border-sky-500/20",
+      ];
+
+      // Build tag HTML
+      const tagsHtml = (post.tags || []).map((tag, i) => {
+        const color = tagColors[i % tagColors.length];
+        return `<span class="rounded-full border px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider ${color}">${tag}</span>`;
+      }).join('');
+
+      const article = document.createElement('article');
+      article.className = 'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/30 p-6 backdrop-blur-sm transition-all duration-300 hover:border-slate-700/60 hover:bg-slate-900/50 hover:shadow-lg';
+      article.innerHTML = `
+        <div>
+          <div class="flex items-center justify-between mb-3 text-xs font-semibold text-slate-500">
+            <div class="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5 text-teal-500">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>${post.date}</span>
+            </div>
+            <span class="text-slate-400 font-medium">By ${post.author}</span>
+          </div>
+
+          <h3 class="font-display text-xl font-bold text-white transition-colors duration-200 group-hover:text-teal-300">
+            ${post.title}
+          </h3>
+
+          <div class="flex flex-wrap gap-1.5 mt-3">
+            ${tagsHtml}
+          </div>
+
+          <p class="mt-4 text-sm leading-relaxed text-slate-400 line-clamp-3">
+            ${post.summary}
+          </p>
+        </div>
+
+        <div class="mt-6 border-t border-slate-800/80 pt-4 flex justify-between items-center">
+          <button 
+            class="blog-read-more text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors flex items-center gap-1"
+            data-post-id="${post.id}"
+          >
+            Read Full Update
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        </div>
+
+        <template id="content-${post.id}">
+          <div class="prose prose-invert prose-teal max-w-none text-slate-300 text-sm leading-relaxed">
+            <h2 class="text-2xl font-bold text-white font-display mb-2">${post.title}</h2>
+            
+            <div class="flex flex-wrap items-center gap-4 text-xs font-medium text-slate-500 mb-6 border-b border-slate-800 pb-4">
+              <span class="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+                </svg>
+                ${post.date}
+              </span>
+              <span>By ${post.author}</span>
+              <div class="flex gap-1">
+                ${(post.tags || []).map((tag, idx) => {
+                  const color = tagColors[idx % tagColors.length];
+                  return `<span class="rounded-full border px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider ${color}">${tag}</span>`;
+                }).join('')}
+              </div>
+            </div>
+
+            <div class="space-y-4 whitespace-pre-line text-slate-300">
+              ${post.content}
+            </div>
+          </div>
+        </template>
+      `;
+
+      blogFeed.appendChild(article);
+    }
+
+    // 3. Modal Dialog Controls
+    const modal = document.getElementById('blog-modal');
+    const modalContent = document.getElementById('blog-modal-content');
+    const modalClose = document.getElementById('blog-modal-close');
+
+    function bindReadMoreButtons() {
+      const readMoreButtons = document.querySelectorAll('.blog-read-more');
+      readMoreButtons.forEach(btn => {
+        // Prevent adding multiple listeners
+        btn.removeEventListener('click', openBlogModal);
+        btn.addEventListener('click', openBlogModal);
+      });
+    }
+
+    function openBlogModal(e) {
+      const postId = e.currentTarget.getAttribute('data-post-id');
+      const template = document.getElementById(`content-${postId}`);
+      if (template && modal && modalContent) {
+        modalContent.innerHTML = template.innerHTML;
+        modal.showModal();
+        document.body.classList.add('overflow-hidden'); // Lock scroll behind modal
+      }
+    }
+
+    function closeBlogModal() {
+      if (modal) {
+        modal.close();
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+
+    modalClose?.addEventListener('click', closeBlogModal);
+    
+    // Close modal if clicking backdrop
+    modal?.addEventListener('click', (e) => {
+      const rect = modal.getBoundingClientRect();
+      const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+      if (!isInDialog) {
+        closeBlogModal();
+      }
+    });
+
+    // Initial binding
+    bindReadMoreButtons();
+  </script>
+</Layout>

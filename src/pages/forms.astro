@@ -1,0 +1,240 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Staff Feedback | PMH Emergency Department Portal">
+  <div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="mb-10 text-center">
+      <span class="text-teal-400 font-semibold uppercase tracking-wider text-xs sm:text-sm">Medical Director Connection</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-2 font-display">ED Staff Feedback Form</h1>
+      <p class="text-sm sm:text-base text-slate-400 mt-3 max-w-lg mx-auto">
+        Share operational issues, clinical suggestions, staffing concerns, or general feedback directly with the Medical Director.
+      </p>
+    </div>
+
+    <!-- Feedback Form Card -->
+    <div class="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/30 p-6 sm:p-10 backdrop-blur-sm shadow-xl">
+      <div class="absolute inset-0 -z-10 bg-gradient-to-br from-teal-500/5 via-transparent to-indigo-500/5"></div>
+
+      <!-- Main Form Content -->
+      <form id="feedback-form" class="space-y-6">
+        <!-- Submitter Name -->
+        <div>
+          <label for="name" class="block text-sm font-semibold text-slate-200">
+            Your Name <span class="text-xs font-normal text-slate-500">(Optional - leave blank to submit anonymously)</span>
+          </label>
+          <input 
+            type="text" 
+            name="name" 
+            id="name" 
+            placeholder="Dr. Smith, or Nurse Jane (or blank)" 
+            class="mt-2 block w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder-slate-600 shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none transition-all"
+          />
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2">
+          <!-- Staff Role -->
+          <div>
+            <label for="role" class="block text-sm font-semibold text-slate-200">
+              Your Role <span class="text-rose-500">*</span>
+            </label>
+            <select 
+              name="role" 
+              id="role" 
+              required
+              class="mt-2 block w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none transition-all"
+            >
+              <option value="" disabled selected class="text-slate-600">Select your role</option>
+              <option value="Physician">Physician</option>
+              <option value="APC">APC (NP / PA)</option>
+              <option value="Nurse">Registered Nurse (RN)</option>
+              <option value="Other">Other ED Staff</option>
+            </select>
+          </div>
+
+          <!-- Feedback Category -->
+          <div>
+            <label for="category" class="block text-sm font-semibold text-slate-200">
+              Feedback Category <span class="text-rose-500">*</span>
+            </label>
+            <select 
+              name="category" 
+              id="category" 
+              required
+              class="mt-2 block w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none transition-all"
+            >
+              <option value="" disabled selected class="text-slate-600">Select category</option>
+              <option value="Clinical">Clinical (Guidelines, Protocols)</option>
+              <option value="Operations">Operations (Flow, EMR, Equipment)</option>
+              <option value="Staffing">Staffing & Scheduling</option>
+              <option value="General Suggestion">General Suggestion</option>
+              <option value="Urgent Concern">Urgent Patient Safety Concern</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Warning block for urgent concern -->
+        <div id="urgent-warning" class="hidden rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-relaxed text-amber-400">
+          <div class="flex gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5 shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+            <div>
+              <span class="font-bold uppercase tracking-wider block mb-0.5">Patient Safety Concern</span>
+              If this is an immediate patient safety risk requiring instant resolution, please contact the ED Charge Nurse (Pager #3301) or notify the On-Call Admin immediately in addition to writing feedback here.
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback Message -->
+        <div>
+          <label for="message" class="block text-sm font-semibold text-slate-200">
+            Feedback & Details <span class="text-rose-500">*</span>
+          </label>
+          <textarea 
+            name="message" 
+            id="message" 
+            rows="6" 
+            required
+            placeholder="Please describe the issue or suggestion in detail. What happened? What can we do to improve or resolve this?"
+            class="mt-2 block w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder-slate-600 shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none transition-all"
+          ></textarea>
+        </div>
+
+        <!-- Action Button -->
+        <button 
+          type="submit" 
+          id="submit-button"
+          class="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 px-5 py-3 text-sm font-bold text-slate-950 shadow-md shadow-teal-500/20 transition-all hover:bg-teal-400 hover:shadow-lg hover:shadow-teal-500/30 hover:scale-[1.01] cursor-pointer"
+        >
+          <span>Submit Feedback</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-4 w-4" id="submit-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+          </svg>
+          <!-- Loading Spinner -->
+          <svg class="animate-spin h-4 w-4 text-slate-950 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="submit-spinner">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Success Screen (Hidden by Default) -->
+      <div id="success-screen" class="hidden text-center py-10 space-y-6">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/30">
+          <!-- Animated checkmark -->
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-8 w-8 text-emerald-400 animate-bounce">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-white font-display">Feedback Submitted</h2>
+          <p class="text-sm text-slate-400 mt-2 max-w-md mx-auto">
+            Your submission has been securely written to the Medical Director's database. Dr. TC reviews all comments weekly during department audits.
+          </p>
+        </div>
+
+        <button 
+          id="reset-button"
+          class="inline-flex items-center gap-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 px-5 py-2.5 text-xs font-semibold text-white transition-colors"
+        >
+          Submit Another Response
+        </button>
+      </div>
+
+      <!-- Error message banner -->
+      <div id="error-banner" class="hidden mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs text-rose-400">
+        <!-- Error text goes here -->
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    const form = document.getElementById('feedback-form');
+    const categorySelect = document.getElementById('category');
+    const urgentWarning = document.getElementById('urgent-warning');
+    const submitBtn = document.getElementById('submit-button');
+    const submitIcon = document.getElementById('submit-icon');
+    const submitSpinner = document.getElementById('submit-spinner');
+    const successScreen = document.getElementById('success-screen');
+    const errorBanner = document.getElementById('error-banner');
+    const resetBtn = document.getElementById('reset-button');
+
+    // Show warning if category is urgent patient safety
+    categorySelect?.addEventListener('change', (e) => {
+      if (e.target.value === 'Urgent Concern') {
+        urgentWarning?.classList.remove('hidden');
+      } else {
+        urgentWarning?.classList.add('hidden');
+      }
+    });
+
+    // Form Submission
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Hide previous errors and show loading
+      if (errorBanner) {
+        errorBanner.classList.add('hidden');
+        errorBanner.textContent = '';
+      }
+      
+      if (submitBtn) submitBtn.disabled = true;
+      submitIcon?.classList.add('hidden');
+      submitSpinner?.classList.remove('hidden');
+
+      const formData = new FormData(form);
+      const payload = {
+        name: formData.get('name'),
+        role: formData.get('role'),
+        category: formData.get('category'),
+        message: formData.get('message')
+      };
+
+      try {
+        const response = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Show success screen, hide form
+          form.classList.add('hidden');
+          successScreen?.classList.remove('hidden');
+        } else {
+          throw new Error(data.error || "Failed to submit feedback.");
+        }
+      } catch (err) {
+        console.error("Submission error:", err);
+        if (errorBanner) {
+          errorBanner.textContent = err.message || "There was a problem submitting your feedback. Please try again.";
+          errorBanner.classList.remove('hidden');
+        }
+        // Reset button loading state
+        if (submitBtn) submitBtn.disabled = false;
+        submitIcon?.classList.remove('hidden');
+        submitSpinner?.classList.add('hidden');
+      }
+    });
+
+    // Reset Form
+    resetBtn?.addEventListener('click', () => {
+      form.reset();
+      urgentWarning?.classList.add('hidden');
+      successScreen?.classList.add('hidden');
+      form.classList.remove('hidden');
+      
+      // Reset button loading state
+      if (submitBtn) submitBtn.disabled = false;
+      submitIcon?.classList.remove('hidden');
+      submitSpinner?.classList.add('hidden');
+    });
+  </script>
+</Layout>
