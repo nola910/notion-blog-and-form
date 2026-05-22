@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import DocumentCard from '../components/DocumentCard.astro';
 import BlogCard from '../components/BlogCard.astro';
+import { getBlogPosts } from './api/blog';
 
 // We fetch the first page of posts on the server for initial render (SEO friendly)
 let initialPosts = [];
@@ -9,15 +10,10 @@ let nextCursor = null;
 let hasMore = false;
 
 try {
-  // Call our local API endpoint directly during build/server render.
-  // Note: Astro.url.origin gives the local host address.
-  const response = await fetch(`${Astro.url.origin}/api/blog?limit=3`);
-  if (response.ok) {
-    const data = await response.json();
-    initialPosts = data.posts || [];
-    nextCursor = data.next_cursor;
-    hasMore = data.has_more;
-  }
+  const data = await getBlogPosts(3);
+  initialPosts = data.posts || [];
+  nextCursor = data.next_cursor;
+  hasMore = data.has_more;
 } catch (err) {
   console.error("Error fetching initial blog posts on server:", err);
 }

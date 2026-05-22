@@ -59,10 +59,7 @@ const MOCK_POSTS = [
   }
 ];
 
-export const GET: APIRoute = async ({ url }) => {
-  const cursorParam = url.searchParams.get('cursor');
-  const limitParam = parseInt(url.searchParams.get('limit') || '3', 10);
-
+export async function getBlogPosts(limitParam: number, cursorParam?: string | null) {
   const notionToken = process.env.NOTION_TOKEN || import.meta.env.NOTION_TOKEN;
   const notionDbId = process.env.NOTION_BLOG_DB_ID || import.meta.env.NOTION_BLOG_DB_ID;
 
@@ -171,17 +168,11 @@ export const GET: APIRoute = async ({ url }) => {
         })
       );
 
-      return new Response(
-        JSON.stringify({
-          posts,
-          next_cursor: response.next_cursor,
-          has_more: response.has_more,
-        }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      return {
+        posts,
+        next_cursor: response.next_cursor,
+        has_more: response.has_more,
+      };
 
     } catch (error: any) {
       console.error("Notion API Error, falling back to mock data:", error);
@@ -196,13 +187,22 @@ export const GET: APIRoute = async ({ url }) => {
   const hasMore = endIndex < MOCK_POSTS.length;
   const nextCursor = hasMore ? String(endIndex) : null;
 
+  return {
+    posts: paginatedPosts,
+    next_cursor: nextCursor,
+    has_more: hasMore,
+    isMock: true
+  };
+}
+
+export const GET: APIRoute = async ({ url }) => {
+  const cursorParam = url.searchParams.get('cursor');
+  const limitParam = parseInt(url.searchParams.get('limit') || '3', 10);
+
+  const result = await getBlogPosts(limitParam, cursorParam);
+
   return new Response(
-    JSON.stringify({
-      posts: paginatedPosts,
-      next_cursor: nextCursor,
-      has_more: hasMore,
-      isMock: true
-    }),
+    JSON.stringify(result),
     {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
